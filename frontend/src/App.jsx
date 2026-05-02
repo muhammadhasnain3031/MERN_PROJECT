@@ -21,7 +21,7 @@ function App() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/all')
+      const res = await axios.post("[https://mern-project-92xy.vercel.app/api/user](https://mern-project-92xy.vercel.app/api/user)", ...)
       setStudents(res.data)
       setRefreshKey(Date.now()) 
     } catch (err) { console.error("Sync Error") }
