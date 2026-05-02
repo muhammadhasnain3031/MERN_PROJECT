@@ -22,3 +22,5 @@ app.delete('/api/delete/:id', deleteStudent);
 app.put('/api/update/:id', upload.single('image'), updateStudent);
 const PORT = 5000;
 app.listen(PORT, () => console.log("Server running on port 5000"));
+
+module.exports = app;
