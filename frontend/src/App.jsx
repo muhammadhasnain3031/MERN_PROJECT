@@ -22,7 +22,7 @@ function App() {
   const fetchStudents = async () => {
     try {
       // Changed to GET because fetching data usually uses GET
-      const res = await axios.get(`${API_BASE_URL}/user`);
+      const res = await axios.get(`${API_BASE_URL}/all`);
       setStudents(res.data)
       setRefreshKey(Date.now()) 
     } catch (err) { 
