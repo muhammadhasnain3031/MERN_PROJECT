@@ -1,17 +1,15 @@
 const multer = require('multer');
 const path = require('path');
 
-// Storage engine setup
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Photo is folder mein jayegi
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
     },
-    filename: (req, file, cb) => {
-        // Photo ka naam unique rakhne ke liye date use kar rahe hain
+    filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-module.exports = upload; // Ye line sab se zaroori hai!
+module.exports = upload;
