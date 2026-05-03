@@ -20,7 +20,12 @@ app.post('/api/register', upload.single('image'), registerStudent);
 app.get('/api/all', getStudents);
 app.delete('/api/delete/:id', deleteStudent);
 app.put('/api/update/:id', upload.single('image'), updateStudent);
-const PORT = 5000;
-app.listen(PORT, () => console.log("Server running on port 5000"));
+// index.js ke aakhir mein ye ensure karein
+const PORT = process.env.PORT || 5000;
+
+// Ye sirf local development ke liye chale ga
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
 module.exports = app;
