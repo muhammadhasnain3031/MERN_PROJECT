@@ -1,103 +1,131 @@
-const Student = require('../models/student');
+const Student = require('../models/Student');
 
-// 1. Student Register karne ka function (With Image)
-exports.registerStudent = async (req, res) => {
+
+// ========================
+// CREATE STUDENT (REGISTER)
+// ========================
+const registerStudent = async (req, res) => {
     try {
-        console.log("Body Data:", req.body);
-        console.log("File Data:", req.file);
-
         const { name, email, course } = req.body;
-        
-        // Image ka naam multer se aa raha hai
-        const imagePath = req.file ? req.file.filename : "";
 
-        // Backend validation
-        if (!name || !email) {
-            return res.status(400).json({ success: false, message: "Name aur Email zaroori hain!" });
+        if (!name || !email || !course) {
+            return res.status(400).json({ message: "All fields are required" });
         }
 
-        const nayaStudent = new Student({
+        let imageUrl = "";
+
+        // Cloudinary image (multer gives req.file.path)
+        if (req.file) {
+            imageUrl = req.file.path;
+        }
+
+        const newStudent = await Student.create({
             name,
             email,
             course,
-            image: imagePath
+            image: imageUrl
         });
 
-        await nayaStudent.save();
-        
-        // Response lazmi bhejna hai taake React ko pata chale kaam ho gaya
-        res.status(201).json({ 
-            success: true, 
-            message: "Student Registered Successfully!", 
-            data: nayaStudent 
+        res.status(201).json({
+            success: true,
+            data: newStudent
         });
 
-    } catch (err) {
-        console.error("Save Error:", err.message);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error("Register Error:", error.message);
+        res.status(500).json({ message: "Server Error during registration" });
     }
 };
 
-// 2. Saare Students dikhane ka function
-exports.getStudents = async (req, res) => {
+
+// ========================
+// GET ALL STUDENTS
+// ========================
+const getStudents = async (req, res) => {
     try {
-        const allStudents = await Student.find();
-        res.status(200).json(allStudents);
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        const students = await Student.find().sort({ createdAt: -1 });
+
+        res.status(200).json(students);
+
+    } catch (error) {
+        console.error("Fetch Error:", error.message);
+        res.status(500).json({ message: "Failed to fetch students" });
     }
 };
 
-// 3. Student Delete karne ka function
-exports.deleteStudent = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const deletedUser = await Student.findByIdAndDelete(id);
 
-        if (!deletedUser) {
-            return res.status(404).json({ success: false, message: "Student nahi mila!" });
+// ========================
+// DELETE STUDENT
+// ========================
+const deleteStudent = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deleted = await Student.findByIdAndDelete(id);
+
+        if (!deleted) {
+            return res.status(404).json({ message: "Student not found" });
         }
 
-        res.status(200).json({ success: true, message: "Student delete ho gaya!" });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        res.status(200).json({ message: "Student deleted successfully" });
+
+    } catch (error) {
+        console.error("Delete Error:", error.message);
+        res.status(500).json({ message: "Delete operation failed" });
     }
 };
 
-// 4. Student Update karne ka function
-// 4. Student Update karne ka function (Fixed Version)
-exports.updateStudent = async (req, res) => {
+
+// ========================
+// UPDATE STUDENT
+// ========================
+const updateStudent = async (req, res) => {
     try {
-        const id = req.params.id;
-        
-        // 1. Text data nikaalain
+        const { id } = req.params;
         const { name, email, course } = req.body;
-        let updateData = { name, email, course };
 
-        // 2. 🔥 Sabse Zaroori: Check karein ke kya multer ne nayi file di hai?
-        if (req.file) {
-            updateData.image = req.file.filename; // Naya filename database ke liye
-            console.log("Backend: Nayi image detect hui ->", req.file.filename);
+        const student = await Student.findById(id);
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
         }
 
-        // 3. Database update karein
-        const updated = await Student.findByIdAndUpdate(
-            id, 
-            { $set: updateData }, 
+        let imageUrl = student.image;
+
+        // If new image uploaded
+        if (req.file) {
+            imageUrl = req.file.path;
+        }
+
+        const updatedStudent = await Student.findByIdAndUpdate(
+            id,
+            {
+                name,
+                email,
+                course,
+                image: imageUrl
+            },
             { new: true }
         );
-        
-        if (!updated) {
-            return res.status(404).json({ success: false, message: "Student nahi mila!" });
-        }
 
-        res.status(200).json({ 
-            success: true, 
-            message: "Update ho gaya", 
-            data: updated 
+        res.status(200).json({
+            success: true,
+            data: updatedStudent
         });
-    } catch (err) {
-        console.error("Update Error:", err.message);
-        res.status(500).json({ success: false, error: err.message });
+
+    } catch (error) {
+        console.error("Update Error:", error.message);
+        res.status(500).json({ message: "Update failed" });
     }
+};
+
+
+// ========================
+// EXPORT
+// ========================
+module.exports = {
+    registerStudent,
+    getStudents,
+    deleteStudent,
+    updateStudent
 };
