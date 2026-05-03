@@ -2,11 +2,11 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/cloudinary');
 
-// Cloudinary storage setup
+// Cloudinary storage setup - Ye direct Cloudinary par bhejta hai
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'mern-students', // Cloudinary folder name
+        folder: 'mern-students', 
         allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
         transformation: [{ width: 500, height: 500, crop: 'limit' }]
     }
